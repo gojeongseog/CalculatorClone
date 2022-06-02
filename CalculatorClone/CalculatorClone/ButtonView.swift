@@ -23,6 +23,7 @@ struct ButtonView: View {
             Text(text)
                 .foregroundColor(color)
                 .font(.system(size: size / 2))
+                
         }
     }
 }

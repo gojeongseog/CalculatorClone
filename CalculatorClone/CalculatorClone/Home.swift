@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct Home: View {
     
@@ -13,9 +14,10 @@ struct Home: View {
     @State var op: String = ""
     @State var right: Double = 0
     
-    @State private var displayText: String = "0"
-    @State private var isDisplay: Bool = false
     
+    @State private var displayText: String = "0"
+    var displayDoble: Double = 0
+    @State private var isDisplay: Bool = false
     
     
     let size: CGFloat = UIScreen.main.bounds.width / 5
@@ -32,6 +34,8 @@ struct Home: View {
                     Spacer()
                     Text(displayText)
                         .font(.system(size: size))
+                        .lineLimit(1)
+                        .minimumScaleFactor(size / 3)
                         .foregroundColor(.white)
                         .padding(padding)
                 }
@@ -107,20 +111,22 @@ extension Home {
             displayText = "0."
         }
         isDisplay = true
-        
     }
     
     
     // 숫자버튼 액션
     func numBtn(text: String) {
+        
         if isDisplay {
             displayText += text
         } else {
             displayText = text
         }
+        
+        convert(value: displayText)
         isDisplay = true
     }
-
+    
     // 상태버튼 액션
     func stateBtn(text: String) {
         
@@ -133,14 +139,14 @@ extension Home {
             displayText = String(Double(displayText)! * -1)
         case "%":
             displayText = String(Double(displayText)! / 100)
-//            isDisplay = false
+            //            isDisplay = false
         default:
             print("stateBtn error")
         }
     }
+    
     // 연산버튼
     func operationBtn(text: String) {
-        //"÷", "×", "-", "+", "="
         op = text
         
         if left == 0 {
@@ -153,46 +159,54 @@ extension Home {
     }
     
     func equal(isEqual: Bool) {
-        
-        var result: Double = 0
+        var value: Double = 0
         
         right = Double(displayText)!
         switch op {
         case "÷":
-            result = left / right
+            if right == 0 {
+                displayText = "오류"
+                return
+            }
+            value = left / right
         case "×":
-            result = left * right
+            value = left * right
         case "-":
-            result = left - right
+            value = left - right
         case "+":
-            result = left + right
+            value = left + right
         default:
             print("Operation error")
         }
+        
         left = isEqual ? 0 : left
         
         // 소숫점 마지막이 0이 되지 않게 하기 위한 구문
-        if result == Double(Int(result)) {
-            displayText = String(Int(result))
-        } else {
-            displayText = String(result)
-        }
-            
+        convert(value: value == Double(Int(value)) ? String(Int(value)) : String(value))
         isDisplay = false
+        
+        
         
     }
     
-//    func convert(text : String, result: Double) {
-//
-//
-//
-//        if result == Double(Int(result)) {
-//            result = Double(Int(result))
-//        }
-//        displayText = numberFormatter.string(from: NSNumber(value: result))
-//
-//    }
-//
+    func convert(value : String) {
+        // 세자리수 마다 콤마 넣기 (4자리 밖에 입력 안되는 현상 있음)
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.maximumFractionDigits = 10
+        
+        // String에서 Double 타입으로 바꾸기 위해 콤마를 빼주는 작업
+        let newValue = value.components(separatedBy: [","]).joined()
+        
+        // 새로운 값을 다시 콤마를 포함시켜주는 작업
+        displayText = numberFormatter.string(for: Double(newValue))!
+        
+        //        displayText = value
+        
+    }
+    
+    
+    
 }
 
 struct Home_Previews: PreviewProvider {
