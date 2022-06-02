@@ -33,10 +33,12 @@ struct Home: View {
                 HStack {
                     Spacer()
                     Text(displayText)
-                        .font(.system(size: size))
-                        .lineLimit(1)
-                        .minimumScaleFactor(size / 3)
+                        .font(.system(size: size * 1.5))
+                        .minimumScaleFactor(0.5)
                         .foregroundColor(.white)
+                        .frame(width: size * 4.5, height: size * 1.5, alignment: .trailing)
+                    //                        .background(.red)
+                        .lineLimit(1)
                         .padding(padding)
                 }
                 .padding(.leading, padding)
@@ -117,13 +119,16 @@ extension Home {
     // 숫자버튼 액션
     func numBtn(text: String) {
         
+        var value: String = displayText
+
+        
         if isDisplay {
-            displayText += text
+            value += text
         } else {
-            displayText = text
+            value = text
         }
         
-        convert(value: displayText)
+        convert(value: value)
         isDisplay = true
     }
     
@@ -196,12 +201,22 @@ extension Home {
         numberFormatter.maximumFractionDigits = 10
         
         // String에서 Double 타입으로 바꾸기 위해 콤마를 빼주는 작업
+        
         let newValue = value.components(separatedBy: [","]).joined()
         
-        // 새로운 값을 다시 콤마를 포함시켜주는 작업
-        displayText = numberFormatter.string(for: Double(newValue))!
+        if newValue.count < 10 {
+            
+            // 새로운 값을 다시 콤마를 포함시켜주는 작업, 프리뷰 오류
+            displayText = numberFormatter.string(for: Double(newValue))!
+        }
         
-        //        displayText = value
+        
+        
+        
+        
+        
+        
+        //                displayText = value
         
     }
     
